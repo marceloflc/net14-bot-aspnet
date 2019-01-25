@@ -1,7 +1,10 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using MongoDB;
+using MongoDB.Bson;
 
 namespace SimpleBot.Logic
 {
@@ -9,7 +12,18 @@ namespace SimpleBot.Logic
     {
         public string Reply(SimpleMessage message)
         {
-            return $"{message.User} disse '{message.Text}";
+            var cliente = new MongoClient();
+            var db = cliente.GetDatabase("Bot");
+            var col = db.GetCollection<BsonDocument>("Messages");
+
+            var doc = new BsonDocument
+            {
+                { "User", message.User },
+                { "Message", message.Text }
+            };
+            col.InsertOne(doc);
+            return $"{message.User}: {message.Text}";
+
         }
 
     }
